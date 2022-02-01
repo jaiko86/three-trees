@@ -1,0 +1,15 @@
+{
+  "name": "three-trees",
+  "version": "0.0.1",
+  "description": "This package helps users deal with trees. For starter, it'll help users print trees such as directory structures.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "tree",
+    "print"
+  ],
+  "author": "jko",
+  "license": "ISC"
+}
