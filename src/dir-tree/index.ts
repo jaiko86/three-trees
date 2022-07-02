@@ -84,7 +84,7 @@ const cloneToIndex = <T>(arr: T[], index: number) => arr.filter((_, i) => i < in
 const replaceLastItem = <T>(arr: T[], replacement: T) =>
   arr.map((item, i) => (i === arr.length - 1 ? replacement : item))
 
-export const addBranches = (lines: Line[]): Line[] => {
+export const getBranchesForLines = (lines: Line[]): Line[] => {
   lines.forEach((line, i, arr) => {
     const prevLine = arr[i - 1] || { branches: [], indents: 0, lastChild: true }
     let branches = cloneToIndex(prevLine.branches, line.indents)
@@ -106,6 +106,14 @@ export const addBranches = (lines: Line[]): Line[] => {
 const printDirectoryTree = (text: string) => {
   const processedLines = getProcessedLines(text)
   const processedLines2 = markLastChilds(processedLines)
+  const branches = getBranchesForLines(processedLines2)
+
+  let tree = ''
+  processedLines2.forEach(({ value }, index) => {
+    tree += value + branches[index] + '\n'
+  })
+
+  return tree
 }
 
 export default printDirectoryTree
