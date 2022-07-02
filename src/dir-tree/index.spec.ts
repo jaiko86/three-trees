@@ -1,8 +1,8 @@
-import { getProcessedLines, markLastChilds, addBranches } from './index'
+import printDirectoryTree, { getProcessedLines, markLastChilds, getBranchesForLines } from './index'
 
 const xdescribe = (...any: any[]) => {}
 
-xdescribe('getProcessedLines()', () => {
+describe('getProcessedLines()', () => {
   const testCases = [
     {
       input: `dir 1
@@ -79,7 +79,7 @@ dir 5`,
   })
 })
 
-xdescribe('markLastChilds()', () => {
+describe('markLastChilds()', () => {
   const testCases = [
     {
       input: {
@@ -217,7 +217,7 @@ const BRANCH_CHARS = {
   STRAIGHT: '│   ',
 }
 
-describe('addBranches()', () => {
+describe('getBranchesForLines()', () => {
   const testCases = [
     {
       input: [{ value: 'dir 1', indents: 0, lastChild: true }],
@@ -306,11 +306,107 @@ describe('addBranches()', () => {
     },
   ]
   testCases.forEach(({ input, expected }, index) => {
-    // if ([3].includes(index)) {
     test(`Test case #${index}`, () => {
-      const result = addBranches(input).map((line) => line.branches.join(''))
+      const result = getBranchesForLines(input).map((line) => line.branches.join(''))
+      console.log(result.join('\n'))
       expect(result).toEqual(expected)
     })
-    // }
+  })
+})
+
+describe('printDirectoryTree()', () => {
+  const testCases = [
+    {
+      input: [{ value: 'dir 1', indents: 0, lastChild: true }],
+      expected: [''],
+    },
+    {
+      input: [{ value: 'dir 1', indents: 0, lastChild: false }],
+      expected: [''],
+    },
+    {
+      input: [
+        { value: 'dir 1', indents: 0, lastChild: true },
+        { value: 'dir 2', indents: 1, lastChild: true },
+        { value: 'dir 3', indents: 2, lastChild: true },
+      ],
+      expected: ['', BRANCH_CHARS.LAST, BRANCH_CHARS.EMPTY + BRANCH_CHARS.LAST],
+    },
+    {
+      // #3
+      input: [
+        { value: 'dir 1', indents: 0, lastChild: true },
+        { value: 'dir 2', indents: 1, lastChild: true },
+        { value: 'dir 3', indents: 2, lastChild: false },
+        { value: 'dir 4', indents: 2, lastChild: false },
+        { value: 'dir 5', indents: 2, lastChild: true },
+      ],
+      expected: [
+        '',
+        BRANCH_CHARS.LAST,
+        BRANCH_CHARS.EMPTY + BRANCH_CHARS.FORK,
+        BRANCH_CHARS.EMPTY + BRANCH_CHARS.FORK,
+        BRANCH_CHARS.EMPTY + BRANCH_CHARS.LAST,
+      ],
+    },
+    {
+      input: [
+        { value: 'dir 1', indents: 0, lastChild: true },
+        { value: 'dir 2', indents: 1, lastChild: true },
+        { value: 'dir 3', indents: 2, lastChild: true },
+        { value: 'dir 4', indents: 3, lastChild: true },
+        { value: 'dir 5', indents: 4, lastChild: true },
+      ],
+      expected: [
+        '',
+        BRANCH_CHARS.LAST,
+        BRANCH_CHARS.EMPTY + BRANCH_CHARS.LAST,
+        BRANCH_CHARS.EMPTY.repeat(2) + BRANCH_CHARS.LAST,
+        BRANCH_CHARS.EMPTY.repeat(3) + BRANCH_CHARS.LAST,
+      ],
+    },
+    {
+      input: [
+        { value: 'dir 1', indents: 0, lastChild: true },
+        { value: 'dir 2', indents: 1, lastChild: true },
+        { value: 'dir 3', indents: 2, lastChild: true },
+        { value: 'dir 1', indents: 0, lastChild: true },
+        { value: 'dir 2', indents: 1, lastChild: true },
+        { value: 'dir 3', indents: 2, lastChild: true },
+      ],
+      expected: [
+        '',
+        BRANCH_CHARS.LAST,
+        BRANCH_CHARS.EMPTY + BRANCH_CHARS.LAST,
+        '',
+        BRANCH_CHARS.LAST,
+        BRANCH_CHARS.EMPTY + BRANCH_CHARS.LAST,
+      ],
+    },
+    {
+      input: [
+        { value: 'dir 1', indents: 0, lastChild: true },
+        { value: 'dir 2', indents: 1, lastChild: false },
+        { value: 'dir 3', indents: 2, lastChild: false },
+        { value: 'dir 4', indents: 3, lastChild: true },
+        { value: 'dir 5', indents: 2, lastChild: true },
+        { value: 'dir 6', indents: 1, lastChild: true },
+      ],
+      expected: [
+        '',
+        BRANCH_CHARS.FORK,
+        BRANCH_CHARS.STRAIGHT + BRANCH_CHARS.FORK,
+        BRANCH_CHARS.STRAIGHT.repeat(2) + BRANCH_CHARS.LAST,
+        BRANCH_CHARS.STRAIGHT + BRANCH_CHARS.LAST,
+        BRANCH_CHARS.LAST,
+      ],
+    },
+  ]
+  testCases.forEach(({ input, expected }, index) => {
+    test(`Test case #${index}`, () => {
+      const result = getBranchesForLines(input).map((line) => line.branches.join(''))
+      console.log(result.join('\n'))
+      expect(result).toEqual(expected)
+    })
   })
 })
